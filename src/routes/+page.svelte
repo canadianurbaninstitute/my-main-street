@@ -28,6 +28,7 @@
 	let ruralChecked = false;
 	let equityChecked = false;
 	let indigenousChecked = false;
+	let tier1Checked = true;
 	let mapLoaded = false; // Track the map's load state
 
 	// Function to update the map filter based on checkbox states
@@ -43,22 +44,39 @@
 		if (indigenousChecked) {
 			filters.push(["==", ["get", "PRIORITY - Indigenous"], "YES"]);
 		}
+		// if (tier1Checked) {
+		// 	filters.push(["==", ["get", "Recommended - Tier 1"], "Yes"]);
+		// }
 		map.setFilter("mms-business", filters);
+
+		// Change the color of the points if tier1 is checked
+		if (tier1Checked) {
+			map.setPaintProperty("mms-business", "circle-color", [
+				"case",
+				["==", ["get", "Recommended - Tier 1"], "Yes"],
+				"#006501", // Color for Tier 1 points
+				"#5E32BD", // Default color for other points
+			]);
+		} else {
+			// Reset to default color when tier1 is not checked
+			map.setPaintProperty("mms-business", "circle-color", "#5E32BD"); // Default color for all points
+		}
 	}
 
 	function handleSelect(e) {
-
-		if (map.getLayer('highlighted-cd')) {
-      map.removeLayer('highlighted-cd');
-    }
-    if (map.getSource('highlighted-cd')) {
-      map.removeSource('highlighted-cd');
-    }
+		if (map.getLayer("highlighted-cd")) {
+			map.removeLayer("highlighted-cd");
+		}
+		if (map.getSource("highlighted-cd")) {
+			map.removeSource("highlighted-cd");
+		}
 
 		// reset cma selected variable
 		cdSelected = e.detail.value;
 
-		const filteredFeature = cds.features.find(feature => feature.properties.CDNAME === cdSelected);
+		const filteredFeature = cds.features.find(
+			(feature) => feature.properties.CDNAME === cdSelected,
+		);
 
 		console.log(filteredFeature);
 
@@ -67,26 +85,26 @@
 			map.fitBounds(bbox, { padding: 20 });
 		}
 
-		map.addSource('highlighted-cd', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [filteredFeature]
-        }
-     	 });
+		map.addSource("highlighted-cd", {
+			type: "geojson",
+			data: {
+				type: "FeatureCollection",
+				features: [filteredFeature],
+			},
+		});
 
-      map.addLayer({
-        id: 'highlighted-cd',
-        type: 'line',
-        source: 'highlighted-cd',
-        paint: {
-          'line-color': '#333333',
-          'line-width': 2
-        }
-      });
+		map.addLayer({
+			id: "highlighted-cd",
+			type: "line",
+			source: "highlighted-cd",
+			paint: {
+				"line-color": "#333333",
+				"line-width": 2,
+			},
+		});
 
 		// not working with other filters yet
-	
+
 		// map.setFilter('mms-business', ['==', ['get', 'Region/Municipality'], cdSelected]);
 	}
 
@@ -112,6 +130,8 @@
 		);
 		// Geocoder Search
 
+
+
 		map.on("load", () => {
 			mapLoaded = true; // Set the map's load state to true when loaded
 
@@ -119,6 +139,13 @@
 				type: "geojson",
 				data: cds,
 			});
+
+			map.setPaintProperty("mms-business", "circle-color", [
+				"case",
+				["==", ["get", "Recommended - Tier 1"], "Yes"],
+				"#006501", // Color for Tier 1 points
+				"#5E32BD", // Default color for other points
+			]);
 
 			// Add a new layer to visualize the polygon.
 			map.addLayer(
@@ -151,32 +178,34 @@
 				closeOnClick: false,
 			});
 
-			// map.on('mouseenter', 'mms-business', function(e) {
-			//     // Change the cursor to a pointer when the mouse is over the business-mms layer
-			//     map.getCanvas().style.cursor = 'pointer';
+			map.on("mouseenter", "mms-business", function (e) {
+				// Change the cursor to a pointer when the mouse is over the business-mms layer
+				map.getCanvas().style.cursor = "pointer";
 
-			//     // Get the company name from the feature's properties
-			//     var company = e.features[0].properties.Company;
+				// Get the company name from the feature's properties
+				var company = e.features[0].properties.Company;
 
-			//     // Set the popup content and location
-			//     popup.setLngLat(e.lngLat)
-			//          .setHTML('<h4>' + company + '</h4>')
-			//          .addTo(map);
-			// });
+				// Set the popup content and location
+				popup
+					.setLngLat(e.lngLat)
+					.setHTML("<h4>" + company + "</h4>")
+					.addTo(map);
+			});
 
-			// map.on('mouseleave', 'mms-business', function() {
-			//     // Reset the cursor when it leaves the business-mms layer
-			//     map.getCanvas().style.cursor = '';
+			map.on("mouseleave", "mms-business", function () {
+				// Reset the cursor when it leaves the business-mms layer
+				map.getCanvas().style.cursor = "";
 
-			//     // Remove the popup
-			//     popup.remove();
-			// });
+				// Remove the popup
+				popup.remove();
+			});
 		});
 	});
 
 	$: ruralChecked, updateMapFilter();
 	$: equityChecked, updateMapFilter();
 	$: indigenousChecked, updateMapFilter();
+	$: tier1Checked, updateMapFilter();
 </script>
 
 <svelte:head>
@@ -199,6 +228,10 @@
 		<h5>Filter projects by:</h5>
 		<div>
 			<div class="checkbox-group">
+				<label>
+					<input type="checkbox" bind:checked={tier1Checked} />
+					Tier 1 - Recommended
+				</label>
 				<label>
 					<input type="checkbox" bind:checked={ruralChecked} />
 					Rural
@@ -230,21 +263,20 @@
 			<h4>Legend</h4>
 			<LegendItem
 				variant={"circle"}
+				label={"Tier 1 - Recommended"}
+				bgcolor={"#006501"}
+				bordercolor={"#ffffff"}
+			/>
+			<LegendItem
+				variant={"circle"}
 				label={"Business Sustainability"}
 				bgcolor={"#5E32BD"}
 				bordercolor={"#fff"}
 			/>
-			<LegendItem
-				variant={"circle"}
-				label={"Community Activator"}
-				bgcolor={"#006501"}
-				bordercolor={"#ffffff"}
-			/>
 		</div>
 	</div>
-	<div id="map"/>
+	<div id="map" />
 </div>
-
 
 <style>
 	:global(body) {
