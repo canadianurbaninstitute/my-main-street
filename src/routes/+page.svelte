@@ -241,7 +241,7 @@
 		variant={"circle"}
 		label={"Community Activator"}
 		bgcolor={"#006501"}
-		bordercolor={"#fff"}
+		bordercolor={"#ffffff"}
 	/>
 </div>
 
