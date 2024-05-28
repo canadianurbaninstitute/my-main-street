@@ -226,24 +226,25 @@
 				--item-is-active-bg="#eee"
 			/>
 		</div>
+		<div class="legend">
+			<h4>Legend</h4>
+			<LegendItem
+				variant={"circle"}
+				label={"Business Sustainability"}
+				bgcolor={"#5E32BD"}
+				bordercolor={"#fff"}
+			/>
+			<LegendItem
+				variant={"circle"}
+				label={"Community Activator"}
+				bgcolor={"#006501"}
+				bordercolor={"#ffffff"}
+			/>
+		</div>
 	</div>
-	<div id="map" />
+	<div id="map"/>
 </div>
-<div class="legend">
-	<h4>Legend</h4>
-	<LegendItem
-		variant={"circle"}
-		label={"Business Sustainability"}
-		bgcolor={"#5E32BD"}
-		bordercolor={"#fff"}
-	/>
-	<LegendItem
-		variant={"circle"}
-		label={"Community Activator"}
-		bgcolor={"#006501"}
-		bordercolor={"#ffffff"}
-	/>
-</div>
+
 
 <style>
 	:global(body) {
@@ -255,11 +256,12 @@
 
 	#content {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
+		width: 100%;
 	}
 
 	#controls {
-		height: 35vh;
+		width: 30vw;
 		padding: 1em;
 		display: flex;
 		flex-direction: column;
@@ -278,16 +280,14 @@
 	}
 
 	#map {
-		height: 65vh;
+		height: 100vh;
 		width: 100%;
 		position: relative;
 		border-top: 1px solid #eee;
 	}
 
 	.legend {
-		position: absolute;
-		bottom: 1em;
-		right: 1em;
+		position: relative;
 		background-color: #fff;
 		padding: 1em;
 		border-radius: 0.6em;
