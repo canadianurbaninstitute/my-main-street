@@ -283,7 +283,7 @@
 		height: 100vh;
 		width: 100%;
 		position: relative;
-		border-top: 1px solid #eee;
+		border-left: 1px solid #eee;
 	}
 
 	.legend {
